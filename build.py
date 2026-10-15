@@ -12,6 +12,7 @@ from pathlib import Path
 from urllib.parse import urljoin
 
 import mistune
+from media import render_media_markdown
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / 'dist'
@@ -86,7 +87,7 @@ def layout(content, *, title, desc, active, page_url):
 <meta property="og:type" content="website"><meta property="og:title" content="{fulltitle}"><meta property="og:description" content="{ES(desc)}">
 <link rel="canonical" href="{canonical}"><link rel="stylesheet" href="/assets/site.css">
 <link rel="alternate" type="application/rss+xml" title="Fikri Radiyan journal RSS" href="/rss.xml">
-</head><body>{nav(active)}<main>{content}</main><footer class="footer"><div class="wrap footer-content"><span>© {datetime.now().year} Fikri Radiyan · Work in progress, documented in public.</span><span><a href="/rss.xml">RSS feed ↗</a> &nbsp; · &nbsp; <a href="/about/">About</a></span></div></footer></body></html>'''
+<script src="/assets/media.js" defer></script></head><body>{nav(active)}<main>{content}</main><footer class="footer"><div class="wrap footer-content"><span>© {datetime.now().year} Fikri Radiyan · Work in progress, documented in public.</span><span><a href="/rss.xml">RSS feed ↗</a> &nbsp; · &nbsp; <a href="/about/">About</a></span></div></footer></body></html>'''
 
 
 def post_row(post):
@@ -133,7 +134,7 @@ def article(post):
         meta += f'<span class="chip">{ES(post["status"])}</span>'
     for tag in post['tags']:
         meta += f'<span class="chip">#{ES(tag)}</span>'
-    body = render_md(post['body'])
+    body = render_media_markdown(post['body'], render_md, ROOT)
     content = f'''<div class="wrap"><article class="article"><header><div class="eyebrow"><a href="/{post['section']}/">← {ES(SECTIONS[post['section']]['title'])}</a></div><h1>{ES(post['title'])}</h1><p class="deck">{ES(post['description'])}</p><div class="postmeta">{meta}</div></header><div class="prose">{body}</div><div class="article-footer"><a class="primary-link" href="/{post['section']}/">← Back to journal</a></div>{comments_html()}</article></div>'''
     write(post['url'], layout(content, title=post['title'], desc=post['description'], active=post['section'], page_url=post['url']))
 
